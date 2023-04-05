@@ -28,6 +28,18 @@ class UsuariosController extends AppController
         ]);
     }
 
+    public function eu()
+    {
+        $jwtPayload = $this->request->getAttribute('jwtPayload');
+
+        $usuario = $this->Usuarios->find('all')->where(['id' =>  $jwtPayload->sub])->first();
+
+        $this->set([
+            'data' => $usuario,
+            '_serialize' => ['data']
+        ]);
+    }
+
     /**
      * View method
      *
@@ -53,6 +65,7 @@ class UsuariosController extends AppController
     {
         $this->request->allowMethod(['post', 'put']);
         $usuario = $this->Usuarios->newEmptyEntity();
+
         $usuario = $this->Usuarios->patchEntity($usuario, json_decode($this->request->getData('dados'), true));
     
         if ($this->Usuarios->save($usuario)) {
@@ -79,19 +92,44 @@ class UsuariosController extends AppController
      */
     public function edit($id = null)
     {
-        $usuario = $this->Usuarios->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $usuario = $this->Usuarios->patchEntity($usuario, $this->request->getData());
-            if ($this->Usuarios->save($usuario)) {
-                $this->Flash->success(__('The usuario has been saved.'));
+        
+        $jwtPayload = $this->request->getAttribute('jwtPayload');
 
-                return $this->redirect(['action' => 'index']);
+        $usuario = $this->Usuarios->find('all')->where(['id' =>  $jwtPayload->sub])->first();
+
+        if ( !$usuario || $usuario['nivel'] != 'admin' ) {
+    
+            $message = 'Sem permissão de acesso';
+            $status = 'erro';
+
+        } else {
+        
+            $usuario = $this->Usuarios->get($id, [
+                'contain' => [],
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $usuario = $this->Usuarios->patchEntity($usuario, json_decode($this->request->getData('dados'), true));
+       
             }
-            $this->Flash->error(__('The usuario could not be saved. Please, try again.'));
+        
+            if ($this->Usuarios->save($usuario)) {
+                $message = 'Saved';
+                $status = 'ok';
+            } else {
+                $message = 'Error';
+                $status = 'erro';
+            }
+
         }
-        $this->set(compact('usuario'));
+    
+        $this->set([
+            'message' => $message,
+            'status' => $status
+        ]);
+    
+        $this->viewBuilder()->setOption('serialize', ['message', 'status']);
+
+
     }
 
     /**
@@ -104,18 +142,34 @@ class UsuariosController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $usuario = $this->Usuarios->get($id);
-        if ($this->Usuarios->delete($usuario)) {
-            $message = 'Deleted';
+    
+        $jwtPayload = $this->request->getAttribute('jwtPayload');
+
+        $usuario = $this->Usuarios->find('all')->where(['id' =>  $jwtPayload->sub])->first();
+
+        if ( !$usuario || $usuario['nivel'] != 'admin' ) {
+    
+            $message = 'Sem permissão de acesso';
+            $status = 'erro';
+
         } else {
-            $message = 'Error';
+
+            $usuario = $this->Usuarios->get($id);
+            if ($this->Usuarios->delete($usuario)) {
+                $message = 'Deleted';
+                $status = 'ok';
+            } else {
+                $message = 'Error';
+                $status = 'erro';
+            }
         }
     
         $this->set([
-            'message' => $message
+            'message' => $message,
+            'status' => $status
         ]);
-        $this->viewBuilder()->setOption('serialize', ['message']);
-
+    
+        $this->viewBuilder()->setOption('serialize', ['message', 'status']);
 
     }
 }

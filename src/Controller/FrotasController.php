@@ -67,18 +67,40 @@ class FrotasController extends AppController
      */
     public function add()
     {
-        $frota = $this->Frotas->newEmptyEntity();
-        if ($this->request->is('post')) {
-            $frota = $this->Frotas->patchEntity($frota, $this->request->getData());
-            if ($this->Frotas->save($frota)) {
-                $this->Flash->success(__('The frota has been saved.'));
+        $this->request->allowMethod(['post', 'put']);
+        
+        $jwtPayload = $this->request->getAttribute('jwtPayload');
 
-                return $this->redirect(['action' => 'index']);
+        $this->loadModel('Usuarios');
+
+        $usuario = $this->Usuarios->find('all')->where(['id' =>  $jwtPayload->sub])->first();
+
+        if ( !$usuario || $usuario['nivel'] != 'admin' ) {
+    
+            $message = 'Sem permissão de acesso';
+            $status = 'erro';
+
+        } else {
+
+            $frota = $this->Frotas->newEmptyEntity();
+            $frota = $this->Frotas->patchEntity($frota, json_decode($this->request->getData('dados'), true));
+        
+            if ($this->Frotas->save($frota)) {
+                $message = 'Saved';
+                $status = 'ok';
+            } else {
+                $message = 'Error';
+                $status = 'erro';
             }
-            $this->Flash->error(__('The frota could not be saved. Please, try again.'));
+
         }
-        $usuarios = $this->Frotas->Usuarios->find('list', ['limit' => 200])->all();
-        $this->set(compact('frota', 'usuarios'));
+    
+        $this->set([
+            'message' => $message,
+            'status' => $status
+        ]);
+    
+        $this->viewBuilder()->setOption('serialize', ['message', 'status']);
     }
 
     /**
@@ -90,20 +112,45 @@ class FrotasController extends AppController
      */
     public function edit($id = null)
     {
-        $frota = $this->Frotas->get($id, [
-            'contain' => [],
-        ]);
-        if ($this->request->is(['patch', 'post', 'put'])) {
-            $frota = $this->Frotas->patchEntity($frota, $this->request->getData());
-            if ($this->Frotas->save($frota)) {
-                $this->Flash->success(__('The frota has been saved.'));
+        
+        $jwtPayload = $this->request->getAttribute('jwtPayload');
 
-                return $this->redirect(['action' => 'index']);
+        $this->loadModel('Usuarios');
+
+        $usuario = $this->Usuarios->find('all')->where(['id' =>  $jwtPayload->sub])->first();
+
+        if ( !$usuario || $usuario['nivel'] != 'admin' ) {
+    
+            $message = 'Sem permissão de acesso';
+            $status = 'erro';
+
+        } else {
+        
+            $frota = $this->Frotas->get($id, [
+                'contain' => [],
+            ]);
+            if ($this->request->is(['patch', 'post', 'put'])) {
+                $frota = $this->Frotas->patchEntity($frota, json_decode($this->request->getData('dados'), true));
+       
             }
-            $this->Flash->error(__('The frota could not be saved. Please, try again.'));
+        
+            if ($this->Frotas->save($frota)) {
+                $message = 'Saved';
+                $status = 'ok';
+            } else {
+                $message = 'Error';
+                $status = 'erro';
+            }
+
         }
-        $usuarios = $this->Frotas->Usuarios->find('list', ['limit' => 200])->all();
-        $this->set(compact('frota', 'usuarios'));
+    
+        $this->set([
+            'message' => $message,
+            'status' => $status
+        ]);
+    
+        $this->viewBuilder()->setOption('serialize', ['message', 'status']);
+    
     }
 
     /**
@@ -116,13 +163,34 @@ class FrotasController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $frota = $this->Frotas->get($id);
-        if ($this->Frotas->delete($frota)) {
-            $this->Flash->success(__('The frota has been deleted.'));
-        } else {
-            $this->Flash->error(__('The frota could not be deleted. Please, try again.'));
-        }
 
-        return $this->redirect(['action' => 'index']);
+        $jwtPayload = $this->request->getAttribute('jwtPayload');
+
+        $this->loadModel('Usuarios');
+
+        $usuario = $this->Usuarios->find('all')->where(['id' =>  $jwtPayload->sub])->first();
+
+        if ( !$usuario || $usuario['nivel'] != 'admin' ) {
+    
+            $message = 'Sem permissão de acesso';
+            $status = 'erro';
+
+        } else {
+            $frota = $this->Frotas->get($id);
+            if ($this->Frotas->delete($frota)) {
+                $message = 'Deleted';
+                $status = 'ok';
+            } else {
+                $message = 'Error';
+                $status = 'erro';
+            }
+        }
+    
+        $this->set([
+            'message' => $message,
+            'status' => $status
+        ]);
+    
+        $this->viewBuilder()->setOption('serialize', ['message', 'status']);
     }
 }

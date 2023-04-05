@@ -17,6 +17,7 @@ class AuthController extends AppController
     {
         $usersTable = TableRegistry::getTableLocator()->get('Usuarios');
         $dados = json_decode($this->request->getData('dados'), true);
+   
         $user = $usersTable->find()
             ->where([
                 'email' => $dados["email"]

@@ -16,6 +16,7 @@ use Cake\Utility\Security;
  * @property string $cnpj
  * @property string $email
  * @property string $senha
+ * @property string $nivel
  *
  * @property \App\Model\Entity\Frota[] $frotas
  */
@@ -38,6 +39,7 @@ class Usuario extends Entity
         'email' => true,
         'senha' => true,
         'frotas' => true,
+        'nivel' => true,
     ];
     protected $_hidden = [
         'senha',
