@@ -108,7 +108,8 @@ class UsuariosController extends AppController
                 'contain' => [],
             ]);
             if ($this->request->is(['patch', 'post', 'put'])) {
-                $usuario = $this->Usuarios->patchEntity($usuario, json_decode($this->request->getData('dados'), true));
+                $dados = json_decode($this->request->getData('dados'), true);
+                $usuario = $this->Usuarios->patchEntity($usuario, $dados);
        
             }
         
@@ -116,6 +117,10 @@ class UsuariosController extends AppController
                 $message = 'Saved';
                 $status = 'ok';
             } else {
+
+                $erros = $usuario->getErrors();
+                debug($erros);
+                die();
                 $message = 'Error';
                 $status = 'erro';
             }

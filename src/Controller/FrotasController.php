@@ -44,6 +44,40 @@ class FrotasController extends AppController
         ]);
     }
 
+    public function client($client_id = null)
+    {
+
+        $jwtPayload = $this->request->getAttribute('jwtPayload');
+
+        $this->loadModel('Usuarios');
+
+        $usuario = $this->Usuarios->find('all')->where(['id' =>  $jwtPayload->sub])->first();
+
+        if ( !$usuario || $usuario['nivel'] != 'admin' ) {
+    
+            $message = 'Sem permissão de acesso';
+            $status = 'erro';
+            $frotas = [];
+
+        } else {
+
+            $message = '';
+            $status = 'ok';
+    
+            $frotas = $this->Frotas->find('all')->where([
+                'Frotas.usuario_id' => $client_id
+            ]);
+
+        }
+
+        $this->set([
+            'data' => $frotas,
+            'status' => $status,
+            'message' => $message,
+            '_serialize' => ['data', 'status', 'message']
+        ]);
+    }
+
     /**
      * View method
      *

@@ -16,6 +16,9 @@ class JwtMiddleware
         if (preg_match('/^\/auth\/login/', $url)) {
             return $next($request, $response);
         }
+        if (preg_match('/^\/configs\/view/', $url)) {
+            return $next($request, $response);
+        }
         if (preg_match('/^\/usuarios\/add/', $url)) {
             return $next($request, $response);
         }

@@ -6,17 +6,13 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Trace Entity
+ * Config Entity
  *
+ * @property string $key
+ * @property string $value
  * @property int $id
- * @property int $frota_id
- * @property \Cake\I18n\FrozenTime $created
- * @property \Cake\I18n\FrozenTime $modified
- * @property string $response
- *
- * @property \App\Model\Entity\Frota $frota
  */
-class Trace extends Entity
+class Config extends Entity
 {
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -28,11 +24,7 @@ class Trace extends Entity
      * @var array<string, bool>
      */
     protected $_accessible = [
-        'frota_id' => true,
-        'created' => true,
-        'modified' => true,
-        'response' => true,
-        'frota' => true,
-        'localidade' => true,
+        'key' => true,
+        'value' => true,
     ];
 }

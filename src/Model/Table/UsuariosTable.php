@@ -7,6 +7,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\Event\EventInterface;
 
 /**
  * Usuarios Model
@@ -81,8 +82,15 @@ class UsuariosTable extends Table
             ->scalar('senha')
             ->maxLength('senha', 80)
             ->requirePresence('senha', 'create')
-            ->notEmptyString('senha');
+            ->notEmptyString('senha', 'Por favor, informe a senha.', 'create');
 
         return $validator;
+    }
+
+    public function beforeSave($event, $entity, $options)
+    {
+        if ($entity->isDirty('senha') && empty($entity->senha)) {
+            $entity->unset('senha');
+        }
     }
 }
