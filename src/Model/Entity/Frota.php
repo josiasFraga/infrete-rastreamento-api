@@ -36,5 +36,6 @@ class Frota extends Entity
         'placa' => true,
         'usuario' => true,
         'traces' => true,
+        'ultimo_recebimento' => true
     ];
 }
